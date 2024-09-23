@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "langdict.h"
 
 #define MAX_LINE 1024
 
@@ -9,14 +10,14 @@ typedef struct {
     char value[256];
 } Config;
 
-Config read_conf_file(const char *filename) {
+Config *read_conf_file(const char *filename, Dictionary *lang) {
     char line[MAX_LINE];
     int lines_count = 0;
 
     FILE *file = fopen(filename, "r");
     if (!file) {
-        perror("Error al abrir el archivo");
-        return;
+        printf(lang->FOPENERROR, filename);
+        return NULL;
     }
 
     while (fgets(line, sizeof(line), file)) {
@@ -28,9 +29,9 @@ Config read_conf_file(const char *filename) {
 
     Config *config_array = malloc(lines_count * sizeof(Config));
     if (!config_array) {
-        perror("Error al asignar memoria");
+        perror(lang->ALLOCATIONERROR);
         fclose(file);
-        return;
+        return NULL;
     }
 
     rewind(file);
@@ -61,7 +62,6 @@ Config read_conf_file(const char *filename) {
         printf("Variable: '%s', Valor: '%s'\n", config_array[i].key, config_array[i].value);
     }
 
-    //free(config_array);
-    return *config_array;
+    return config_array;
 }
 

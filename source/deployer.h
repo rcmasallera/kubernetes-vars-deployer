@@ -1,19 +1,50 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "langdict.h"
+#include <sys/types.h>
+#include <errno.h>
 #include "readconfig.h"
+
+#if !defined(TRUE)
+#define TRUE 1
+#endif // TRUE
+
+#if !defined(FALSE)
+#define FALSE 0
+#endif // FALSE
 
 #define MAX_PATH 1024
 #define TMP_DIR "TEMP"
+#define CONFIG_FILE "vars.conf"
 
-#include <stdio.h>
-#include <string.h>
+void create_directory(const char *dir, Dictionary *lang) {
+    char tmp[256];
+    char *p = NULL;
+    size_t len;
 
-void create_directory(const char *dir) {
+    snprintf(tmp, sizeof(tmp), "%s", dir);
+    len = strlen(tmp);
+    
+    if (tmp[len - 1] == '/') {
+        tmp[len - 1] = 0;
+    }
+
+    for (p = tmp + 1; *p; p++) {
+        if (*p == '/') {
+            *p = 0;
+            if (mkdir(tmp, 0700) != 0 && errno != EEXIST) {
+                printf(lang->DIRCREATFAIL, tmp);
+                return;
+            }
+            *p = '/';
+        }
+    }
+    if (mkdir(tmp, 0700) != 0 && errno != EEXIST) {
+        printf(lang->DIRCREATFAIL, tmp);
+    }
+}
+
+void _create_directory(const char *dir) {
     struct stat st = {0};
     if (stat(dir, &st) == -1) {
         mkdir(dir, 0700);
@@ -67,7 +98,7 @@ void remove_newlinesp(char *str) {
     *output = '\0';        
 }
 
-void process_yaml_file(const char *file_path, Dictionary *lang) {
+void process_yaml_file(const char *file_path, Dictionary *lang, Config *cfg, int *manual) {
     printf(lang->YAMLPROCESSING);
     char tmp_file[MAX_PATH];
     get_tmp_file_name(file_path, tmp_file); 
@@ -87,6 +118,7 @@ void process_yaml_file(const char *file_path, Dictionary *lang) {
 
     printf(lang->FILEPROC, file_path);
     char line[1024];
+    
     while (fgets(line, sizeof(line), src)) {
         char *pos = NULL;
         while ((pos = strstr(line, "%VAR-")) != NULL) { 
@@ -125,7 +157,7 @@ void process_yaml_file(const char *file_path, Dictionary *lang) {
     printf(lang->TFILECREATED, tmp_file);
 }
 
-void scan_directory(const char *dir_path, Dictionary *lang) {
+void scan_directory(const char *dir_path, Dictionary *lang, Config *cfg, int *manual) {
 
     DIR *dir = opendir(dir_path);
     if (!dir) {
@@ -149,7 +181,7 @@ void scan_directory(const char *dir_path, Dictionary *lang) {
         }
 
         if (S_ISDIR(st.st_mode)) {
-            scan_directory(path, lang);  
+            scan_directory(path, lang, cfg, &manual);  
         }
         else if (strstr(entry->d_name, ".yaml")) {
           char confirm[4];
@@ -159,7 +191,7 @@ void scan_directory(const char *dir_path, Dictionary *lang) {
 
           int strcmp_response = strcmp(confirm, "yes");
           if (strcmp_response == 0) {
-              process_yaml_file(path, lang); 
+              process_yaml_file(path, lang, cfg, &manual); 
           } else {
               delete_tmp_file(path, lang);  
               printf(lang->PROCFILENO, path);

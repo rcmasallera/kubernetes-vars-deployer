@@ -25,6 +25,9 @@ typedef struct {
     char* TEMPDIRDEL;
     char* TEMPDIRDELERROR;
     char* UNSUPPORTEDLANG;
+    char* DIRCREATFAIL;
+    char* ALLOCATIONERROR;
+    char* UNSUPPORTEDMODE;
 } Dictionary;
 
 Dictionary spa = {
@@ -39,7 +42,7 @@ Dictionary spa = {
     .DELTEMPERROR = "Error al eliminar archivo temporal \n",
     .NONPRINTABLE = "Carácter no imprimible (ASCII): %d",
     .YAMLPROCESSING = "Procesando yaml \n",
-    .FOPENERROR = "Error al abrir el archivo \n",
+    .FOPENERROR = "Error al abrir el archivo %s\n",
     .TEMPFERROR = "Error al crear el archivo temporal \n",
     .FILEPROC = "Procesando archivo: %s\n",
     .VARVALUE = "Ingrese valor para %s: \n",
@@ -53,7 +56,10 @@ Dictionary spa = {
     .DELFILEERROR = "Error al eliminar archivo \n",
     .TEMPDIRDEL = "Directorio TEMP eliminado.\n",
     .TEMPDIRDELERROR = "Error al eliminar el directorio TEMP \n",
-    .UNSUPPORTEDLANG =  "Idioma no soportado: %s\n"
+    .UNSUPPORTEDLANG =  "Idioma no soportado: %s\n",
+    .DIRCREATFAIL = "Error al crear el directorio %s\n",
+    .ALLOCATIONERROR = "Error en la reserva de memoria\n",
+    .UNSUPPORTEDMODE = "Modo: %s no soportado\n"
 };
 
 Dictionary eng = {
@@ -68,7 +74,7 @@ Dictionary eng = {
     .DELTEMPERROR = "Error deleting temp file \n",
     .NONPRINTABLE = "Not printable character (ASCII): %d",
     .YAMLPROCESSING = "Processing yaml \n",
-    .FOPENERROR = "Error oppening file \n",
+    .FOPENERROR = "Error oppening file  %s \n",
     .TEMPFERROR = "Error creating temp file \n",
     .FILEPROC = "Processing file: %s\n",
     .VARVALUE = "Input value for %s: \n",
@@ -82,5 +88,9 @@ Dictionary eng = {
     .DELFILEERROR = "Error deleting file \n",
     .TEMPDIRDEL = "Temp dir deleted.\n",
     .TEMPDIRDELERROR = "Error deleting TEMP dir \n",
-    .UNSUPPORTEDLANG =  "Unsupported lang: %s\n"
+    .UNSUPPORTEDLANG =  "Unsupported lang: %s\n",
+    .DIRCREATFAIL = "Error creating dir %s\n",
+    .ALLOCATIONERROR = "Error allocating memory\n",
+    .UNSUPPORTEDMODE = "Unsupported: %s mode\n"
 };
+

@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 #include "deployer.h"
 
 void print_usage() {
@@ -18,6 +14,7 @@ int main(int argc, char *argv[]) {
     char *path = ".";
     char *config_file = NULL;
     int verbose = 0;
+    int manual = FALSE;
     Config *config_array;
     // Args processing
     for (int i = 1; i < argc; i++) {
@@ -65,9 +62,43 @@ int main(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);
             }
         } 
+        else if (strncmp(argv[i], "-m", 2) == 0 || strncmp(argv[i], "--manual", 10) == 0) {
+            char *manual_mode = strchr(argv[i], '=');
+            if (!manual_mode && i + 1 < argc) {
+                manual_mode = argv[++i];
+            } else if (manual_mode) {
+                manual_mode++;
+            } else {
+                print_usage();
+                exit(EXIT_FAILURE);
+            }
+            if (strcmp(manual_mode, "yes") == 0) {
+                manual = TRUE;
+            } else if (strcmp(manual_mode, "no") == 0) {
+                manual = FALSE;
+            } else {
+                fprintf(stderr, dict->UNSUPPORTEDMODE, manual_mode);
+                exit(EXIT_FAILURE);
+            }
+        } 
         else {
             print_usage();
             exit(EXIT_FAILURE);
+        }
+    }
+
+    if (config_file){
+        printf(config_file);
+        config_array = read_conf_file(config_file, dict);
+    }
+    else{
+        if (!manual){
+            config_file=CONFIG_FILE;
+            config_array = read_conf_file(config_file, dict);
+        }
+        else{
+            manual = TRUE;
+            fprintf(stderr, dict->MANUALMODE);
         }
     }
 
@@ -76,7 +107,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    create_directory(TMP_DIR);
+    create_directory(TMP_DIR, dict);
     if (verbose) {
         printf(dict->DIRNOTIFY);
     }
@@ -84,7 +115,7 @@ int main(int argc, char *argv[]) {
     if (verbose) {
         printf(dict->DIRSCANNING);
     }
-    scan_directory(path, dict);
+    scan_directory(path, dict, config_array, &manual);
 
     if (verbose) {
         printf(dict->TEMPFILESCREATED);
@@ -101,5 +132,6 @@ int main(int argc, char *argv[]) {
         printf(dict->DELTEMPNO);
     }
 
+    free(config_array);
     return 0;
 }

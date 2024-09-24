@@ -15,7 +15,10 @@ int main(int argc, char *argv[]) {
     char *config_file = NULL;
     int verbose = 0;
     int manual = FALSE;
+    int config_lines = 0;
+    ConfigSet *config_set;
     Config *config_array;
+    int length = 0;
     // Args processing
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--verbose") == 0) {
@@ -86,18 +89,23 @@ int main(int argc, char *argv[]) {
             exit(EXIT_FAILURE);
         }
     }
-
+    
     if (config_file){
-        printf(config_file);
-        config_array = read_conf_file(config_file, dict);
+        config_lines = get_config_lines(config_file, dict);
+        config_array = malloc(config_lines * sizeof(Config));
+        printf("Numero de lineas: %d \n", config_lines);
+        config_set = malloc(sizeof(ConfigSet));
+        read_conf_file(config_file, dict, &config_lines, config_set, config_array);
     }
     else{
         if (!manual){
             config_file=CONFIG_FILE;
-            config_array = read_conf_file(config_file, dict);
+            config_lines = get_config_lines(config_file, dict);
+            config_array = malloc(config_lines * sizeof(Config));
+            config_set = malloc(sizeof(ConfigSet));
+            read_conf_file(config_file, dict, &config_lines, config_set, config_array);
         }
         else{
-            manual = TRUE;
             fprintf(stderr, dict->MANUALMODE);
         }
     }
@@ -115,7 +123,7 @@ int main(int argc, char *argv[]) {
     if (verbose) {
         printf(dict->DIRSCANNING);
     }
-    scan_directory(path, dict, config_array, &manual);
+    scan_directory(path, dict, config_set, &manual);
 
     if (verbose) {
         printf(dict->TEMPFILESCREATED);
@@ -125,7 +133,13 @@ int main(int argc, char *argv[]) {
     printf(dict->DELTEMPQUEST);
     fgets(confirm, sizeof(confirm), stdin);
     confirm[strcspn(confirm, "\n")] = '\0';
-
+    remove_newlinesp(confirm);
+    length = strlen(confirm);
+    while (length <= 1){
+      fgets(confirm, sizeof(confirm), stdin);
+      length = strlen(confirm);
+      remove_newlinesp(confirm);
+    };
     if (strcmp(confirm, "yes") == 0) {
         delete_temp_files(dict);
     } else {

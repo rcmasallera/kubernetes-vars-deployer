@@ -98,7 +98,7 @@ void remove_newlinesp(char *str) {
     *output = '\0';        
 }
 
-void process_yaml_file(const char *file_path, Dictionary *lang, Config *cfg, int *manual) {
+void process_yaml_file(const char *file_path, Dictionary *lang, ConfigSet *cfgset, int *manual) {
     printf(lang->YAMLPROCESSING);
     char tmp_file[MAX_PATH];
     get_tmp_file_name(file_path, tmp_file); 
@@ -118,34 +118,49 @@ void process_yaml_file(const char *file_path, Dictionary *lang, Config *cfg, int
 
     printf(lang->FILEPROC, file_path);
     char line[1024];
-    
+    int config_lines = *cfgset->lines;
+
     while (fgets(line, sizeof(line), src)) {
         char *pos = NULL;
         while ((pos = strstr(line, "%VAR-")) != NULL) { 
-            char var_name[256] = {0};
-            sscanf(pos, "%%VAR-%[^%%]%%", var_name); 
-            
-            var_name[strcspn(var_name, "\n")] = '\0'; 
+            char var_name[128] = {0};
             char replacement[256];
-            printf(lang->VARVALUE, var_name);
-            printf(lang->VARFOUNDED, var_name);
-            
-            fgets(replacement, sizeof(replacement), stdin);
-            int length = strlen(replacement);
-            while (length <= 1){
-                fgets(replacement, sizeof(replacement), stdin);
-                replacement[strcspn(replacement, "\n")] = '\0';
-                replacement[strcspn(replacement, "\n")] = '\0';
-                length = strlen(replacement);
-            }
-            remove_newlinesp(replacement); 
+            sscanf(pos, "%%VAR-%[^%%]%%", var_name); 
+            var_name[strcspn(var_name, "\n")] = '\0'; 
             char new_line[1024] = {0};
+            unsigned short var_assigned = FALSE;
+            int compare_result;
+            for (int i = 0; i < *cfgset->lines; i++) {
+                compare_result = strcmp(var_name, cfgset->array[i].key);
+                if (compare_result == 0){
+                    strncpy(replacement, cfgset->array[i].value, sizeof(replacement) - 1);
+                    remove_newlinesp(replacement);
+                    var_assigned = TRUE;
+                    break;
+                }
+                else{
+                    continue;
+                }
+            };
+
+            if(!var_assigned){
+                printf(lang->VARVALUE, var_name);
+                printf(lang->VARFOUNDED, var_name);
+                fgets(replacement, sizeof(replacement), stdin);
+                int length = strlen(replacement);
+                while (length <= 1){
+                    fgets(replacement, sizeof(replacement), stdin);
+                    replacement[strcspn(replacement, "\n")] = '\0';
+                    length = strlen(replacement);
+                }
+            };
+            remove_newlinesp(replacement);
             strncpy(new_line, line, pos - line);  
             strcat(new_line, replacement);        
             strcat(new_line, pos + strlen(var_name) + 6);  
             strcpy(line, new_line); 
+            var_assigned = FALSE;
             memset(replacement, 0, sizeof(replacement));
-            length = 0;
         }
 
         fputs(line, tmp); 
@@ -157,7 +172,7 @@ void process_yaml_file(const char *file_path, Dictionary *lang, Config *cfg, int
     printf(lang->TFILECREATED, tmp_file);
 }
 
-void scan_directory(const char *dir_path, Dictionary *lang, Config *cfg, int *manual) {
+void scan_directory(const char *dir_path, Dictionary *lang, ConfigSet *cfgset, int *manual) {
 
     DIR *dir = opendir(dir_path);
     if (!dir) {
@@ -181,21 +196,27 @@ void scan_directory(const char *dir_path, Dictionary *lang, Config *cfg, int *ma
         }
 
         if (S_ISDIR(st.st_mode)) {
-            scan_directory(path, lang, cfg, &manual);  
+            scan_directory(path, lang, cfgset, &manual);  
         }
         else if (strstr(entry->d_name, ".yaml")) {
-          char confirm[4];
-          printf(lang->PROCFILEQUEST, path);
-          fgets(confirm, sizeof(confirm), stdin);
-          confirm[strcspn(confirm, "\n")] = '\0';
-
-          int strcmp_response = strcmp(confirm, "yes");
-          if (strcmp_response == 0) {
-              process_yaml_file(path, lang, cfg, &manual); 
-          } else {
-              delete_tmp_file(path, lang);  
-              printf(lang->PROCFILENO, path);
-          }
+            int length = 0;
+            char confirm[4];
+            printf(lang->PROCFILEQUEST, path);
+            fgets(confirm, sizeof(confirm), stdin);
+            remove_newlinesp(confirm);
+            length = strlen(confirm);
+            while (length <= 1){
+              fgets(confirm, sizeof(confirm), stdin);
+              remove_newlinesp(confirm);
+              length = strlen(confirm);
+            };
+            int strcmp_response = strcmp(confirm, "yes");
+            if (strcmp_response == 0) {
+                process_yaml_file(path, lang, cfgset, &manual); 
+            } else {
+                delete_tmp_file(path, lang);  
+                printf(lang->PROCFILENO, path);
+            }
         }
     }
 

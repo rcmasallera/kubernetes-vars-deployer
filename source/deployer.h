@@ -5,14 +5,6 @@
 #include <errno.h>
 #include "readconfig.h"
 
-#if !defined(TRUE)
-#define TRUE 1
-#endif // TRUE
-
-#if !defined(FALSE)
-#define FALSE 0
-#endif // FALSE
-
 #define MAX_PATH 1024
 #define TMP_DIR "TEMP"
 #define CONFIG_FILE "vars.conf"
@@ -99,7 +91,7 @@ void remove_newlinesp(char *str) {
 }
 
 void process_yaml_file(const char *file_path, Dictionary *lang, ConfigSet *cfgset, int *manual) {
-    printf(lang->YAMLPROCESSING);
+    printf("%s", lang->YAMLPROCESSING);
     char tmp_file[MAX_PATH];
     get_tmp_file_name(file_path, tmp_file); 
 
@@ -116,7 +108,7 @@ void process_yaml_file(const char *file_path, Dictionary *lang, ConfigSet *cfgse
         return;
     }
 
-    printf(lang->FILEPROC, file_path);
+    printf("%s %s \n", lang->FILEPROC, file_path);
     char line[1024];
     int config_lines = *cfgset->lines;
 
@@ -144,8 +136,8 @@ void process_yaml_file(const char *file_path, Dictionary *lang, ConfigSet *cfgse
             };
 
             if(!var_assigned){
-                printf(lang->VARVALUE, var_name);
-                printf(lang->VARFOUNDED, var_name);
+                printf("%s %s \n", lang->VARVALUE, var_name);
+                printf("%s %s \n", lang->VARFOUNDED, var_name);
                 fgets(replacement, sizeof(replacement), stdin);
                 int length = strlen(replacement);
                 while (length <= 1){
@@ -196,7 +188,7 @@ void scan_directory(const char *dir_path, Dictionary *lang, ConfigSet *cfgset, i
         }
 
         if (S_ISDIR(st.st_mode)) {
-            scan_directory(path, lang, cfgset, &manual);  
+            scan_directory(path, lang, cfgset, manual);  
         }
         else if (strstr(entry->d_name, ".yaml")) {
             int length = 0;
@@ -212,7 +204,7 @@ void scan_directory(const char *dir_path, Dictionary *lang, ConfigSet *cfgset, i
             };
             int strcmp_response = strcmp(confirm, "yes");
             if (strcmp_response == 0) {
-                process_yaml_file(path, lang, cfgset, &manual); 
+                process_yaml_file(path, lang, cfgset, manual); 
             } else {
                 delete_tmp_file(path, lang);  
                 printf(lang->PROCFILENO, path);
@@ -249,7 +241,7 @@ void delete_temp_files(Dictionary *lang) {
     closedir(dir);
 
     if (rmdir(TMP_DIR) == 0) {
-        printf(lang->TEMPDIRDEL);
+        printf("%s", lang->TEMPDIRDEL);
     } else {
         perror(lang->TEMPDIRDELERROR);
     }

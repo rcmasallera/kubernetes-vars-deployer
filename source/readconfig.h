@@ -3,6 +3,14 @@
 #include <string.h>
 #include "langdict.h"
 
+#if !defined(TRUE)
+#define TRUE 1
+#endif // TRUE
+
+#if !defined(FALSE)
+#define FALSE 0
+#endif // FALSE
+
 #define MAX_LINE 1024
 
 typedef struct {
@@ -21,7 +29,7 @@ int get_config_lines(const char *filename, Dictionary *lang){
     FILE *file = fopen(filename, "r");
     if (!file) {
         printf(lang->FOPENERROR, filename);
-        return NULL;
+        return FALSE;
     }
     while (fgets(line, sizeof(line), file)) {
         if (line[0] == '\n' || line[0] == '#') {

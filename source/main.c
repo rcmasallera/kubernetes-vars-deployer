@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
     int length = 0;
     // Args processing
     if (geteuid() == 0) {
-        fprintf(stderr, dict->ERRORUSER);
+        fprintf(stderr, "%s", dict->ERRORUSER);
         exit(EXIT_FAILURE);
     }
     for (int i = 1; i < argc; i++) {
@@ -110,26 +110,26 @@ int main(int argc, char *argv[]) {
             read_conf_file(config_file, dict, &config_lines, config_set, config_array);
         }
         else{
-            fprintf(stderr, dict->MANUALMODE);
+            fprintf(stderr, "%s", dict->MANUALMODE);
         }
     }
 
     create_directory(TMP_DIR, dict);
     if (verbose) {
-        printf(dict->DIRNOTIFY);
+        printf("%s", dict->DIRNOTIFY);
     }
 
     if (verbose) {
-        printf(dict->DIRSCANNING);
+        printf("%s", dict->DIRSCANNING);
     }
     scan_directory(path, dict, config_set, &manual);
 
     if (verbose) {
-        printf(dict->TEMPFILESCREATED);
+        printf("%s", dict->TEMPFILESCREATED);
     }
 
     char confirm[4];
-    printf(dict->DELTEMPQUEST);
+    printf("%s", dict->DELTEMPQUEST);
     fgets(confirm, sizeof(confirm), stdin);
     confirm[strcspn(confirm, "\n")] = '\0';
     remove_newlinesp(confirm);
@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
     if (strcmp(confirm, "yes") == 0) {
         delete_temp_files(dict);
     } else {
-        printf(dict->DELTEMPNO);
+        printf("%s", dict->DELTEMPNO);
     }
 
     free(config_array);

@@ -50,3 +50,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+
+# Compiled tests
+main
+tmp.*
+TEMP
+readconfig

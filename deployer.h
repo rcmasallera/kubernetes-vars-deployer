@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "langdict.h"
+#include "readconfig.h"
 
 #define MAX_PATH 1024
 #define TMP_DIR "TEMP"
@@ -125,6 +126,7 @@ void process_yaml_file(const char *file_path, Dictionary *lang) {
 }
 
 void scan_directory(const char *dir_path, Dictionary *lang) {
+
     DIR *dir = opendir(dir_path);
     if (!dir) {
         perror(lang->DIROPENERROR);

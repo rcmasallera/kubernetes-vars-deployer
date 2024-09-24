@@ -20,6 +20,10 @@ int main(int argc, char *argv[]) {
     Config *config_array;
     int length = 0;
     // Args processing
+    if (geteuid() == 0) {
+        fprintf(stderr, dict->ERRORUSER);
+        exit(EXIT_FAILURE);
+    }
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--verbose") == 0) {
             verbose = 1; 
@@ -108,11 +112,6 @@ int main(int argc, char *argv[]) {
         else{
             fprintf(stderr, dict->MANUALMODE);
         }
-    }
-
-    if (geteuid() == 0) {
-        fprintf(stderr, dict->ERRORUSER);
-        exit(EXIT_FAILURE);
     }
 
     create_directory(TMP_DIR, dict);

@@ -90,7 +90,8 @@ void remove_newlinesp(char *str) {
     *output = '\0';        
 }
 
-void process_yaml_file(const char *file_path, Dictionary *lang, ConfigSet *cfgset, int *manual) {
+void process_yaml_file(const char *file_path, Dictionary *lang, ConfigSet *cfgset, unsigned int *manual) {
+    
     printf("%s", lang->YAMLPROCESSING);
     char tmp_file[MAX_PATH];
     get_tmp_file_name(file_path, tmp_file); 
@@ -107,11 +108,15 @@ void process_yaml_file(const char *file_path, Dictionary *lang, ConfigSet *cfgse
         fclose(src);
         return;
     }
-
-    printf("%s %s \n", lang->FILEPROC, file_path);
+    
+    printf("%s %s\n", lang->FILEPROC, file_path);
     char line[1024];
-    int config_lines = *cfgset->lines;
 
+    int config_lines;
+
+    if (cfgset){
+       config_lines = *cfgset->lines;
+    }
     while (fgets(line, sizeof(line), src)) {
         char *pos = NULL;
         while ((pos = strstr(line, "%VAR-")) != NULL) { 
@@ -122,22 +127,24 @@ void process_yaml_file(const char *file_path, Dictionary *lang, ConfigSet *cfgse
             char new_line[1024] = {0};
             unsigned short var_assigned = FALSE;
             int compare_result;
-            for (int i = 0; i < *cfgset->lines; i++) {
-                compare_result = strcmp(var_name, cfgset->array[i].key);
-                if (compare_result == 0){
-                    strncpy(replacement, cfgset->array[i].value, sizeof(replacement) - 1);
-                    remove_newlinesp(replacement);
-                    var_assigned = TRUE;
-                    break;
-                }
-                else{
-                    continue;
-                }
-            };
+            if(*manual == 0 && cfgset){
+                for (int i = 0; i < *cfgset->lines; i++) {
+                    compare_result = strcmp(var_name, cfgset->array[i].key);
+                    if (compare_result == 0){
+                        strncpy(replacement, cfgset->array[i].value, sizeof(replacement) - 1);
+                        remove_newlinesp(replacement);
+                        var_assigned = TRUE;
+                        break;
+                    }
+                    else{
+                        continue;
+                    }
+                };
+            }
 
             if(!var_assigned){
-                printf("%s %s \n", lang->VARVALUE, var_name);
-                printf("%s %s \n", lang->VARFOUNDED, var_name);
+                printf("%s%s\n", lang->VARVALUE, var_name);
+                printf("%s%s\n", lang->VARFOUNDED, var_name);
                 fgets(replacement, sizeof(replacement), stdin);
                 int length = strlen(replacement);
                 while (length <= 1){
@@ -164,8 +171,7 @@ void process_yaml_file(const char *file_path, Dictionary *lang, ConfigSet *cfgse
     printf(lang->TFILECREATED, tmp_file);
 }
 
-void scan_directory(const char *dir_path, Dictionary *lang, ConfigSet *cfgset, int *manual) {
-
+void scan_directory(const char *dir_path, Dictionary *lang, ConfigSet *cfgset, unsigned int *manual) {
     DIR *dir = opendir(dir_path);
     if (!dir) {
         perror(lang->DIROPENERROR);
@@ -188,7 +194,7 @@ void scan_directory(const char *dir_path, Dictionary *lang, ConfigSet *cfgset, i
         }
 
         if (S_ISDIR(st.st_mode)) {
-            scan_directory(path, lang, cfgset, manual);  
+            scan_directory(path, lang, cfgset, &*manual); 
         }
         else if (strstr(entry->d_name, ".yaml")) {
             int length = 0;

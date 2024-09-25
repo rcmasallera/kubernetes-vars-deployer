@@ -5,11 +5,12 @@ int main(int argc, char *argv[]) {
     char *path = ".";
     char *config_file = NULL;
     int verbose = 0;
-    int manual = FALSE;
+    unsigned int manual = FALSE;
     int config_lines = 0;
-    ConfigSet *config_set;
-    Config *config_array;
+    ConfigSet *config_set = 0;
+    Config *config_array = 0;
     int length = 0;
+    //printf("%u", FALSE);
     // Args processing
     if (geteuid() == 0) {
         fprintf(stderr, "%s", dict->ERRORUSER);
@@ -60,7 +61,7 @@ int main(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);
             }
         } 
-        else if (strncmp(argv[i], "-m", 2) == 0 || strncmp(argv[i], "--manual", 10) == 0) {
+        else if (strncmp(argv[i], "-m", 2) == 0 || strncmp(argv[i], "--manual", 8) == 0) {
             char *manual_mode = strchr(argv[i], '=');
             if (!manual_mode && i + 1 < argc) {
                 manual_mode = argv[++i];
@@ -112,6 +113,7 @@ int main(int argc, char *argv[]) {
     if (verbose) {
         printf("%s", dict->DIRSCANNING);
     }
+
     scan_directory(path, dict, config_set, &manual);
 
     if (verbose) {

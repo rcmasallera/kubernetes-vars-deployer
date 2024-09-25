@@ -4,11 +4,11 @@
 #include "langdict.h"
 
 #if !defined(TRUE)
-#define TRUE 1
+#define TRUE 1U
 #endif // TRUE
 
 #if !defined(FALSE)
-#define FALSE 0
+#define FALSE 0U
 #endif // FALSE
 
 #define MAX_LINE 1024

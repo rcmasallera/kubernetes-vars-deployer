@@ -11,4 +11,4 @@ spec:
     port: %VAR-PORT%
     targetPort: %VAR-TARGET-PORT%
   selector:
-    app: %VAR-APP%
+    app: %VAR-APP-SELECTOR%

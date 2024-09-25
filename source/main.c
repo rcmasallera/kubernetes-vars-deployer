@@ -1,14 +1,5 @@
 #include "deployer.h"
 
-void print_usage() {
-    printf("Uso: deployer [opciones]\n");
-    printf("Opciones:\n");
-    printf("  -v, --verbose       Modo detallado\n");
-    printf("  -l, --language=LANG Seleccionar idioma (esp o eng)\n");
-    printf("  -p, --path=PATH     Directorio de trabajo\n");
-    printf("  -c, --config=FILE   Archivo de configuración\n");
-}
-
 int main(int argc, char *argv[]) {
     Dictionary *dict = &spa;
     char *path = ".";
@@ -97,7 +88,6 @@ int main(int argc, char *argv[]) {
     if (config_file){
         config_lines = get_config_lines(config_file, dict);
         config_array = malloc(config_lines * sizeof(Config));
-        printf("Numero de lineas: %d \n", config_lines);
         config_set = malloc(sizeof(ConfigSet));
         read_conf_file(config_file, dict, &config_lines, config_set, config_array);
     }

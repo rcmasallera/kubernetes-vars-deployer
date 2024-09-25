@@ -76,12 +76,12 @@ Dictionary eng = {
     .YAMLPROCESSING = "Processing yaml \n",
     .FOPENERROR = "Error oppening file  %s \n",
     .TEMPFERROR = "Error creating temp file \n",
-    .FILEPROC = "Processing file: %s\n",
+    .FILEPROC = "Processing file: ",
     .VARVALUE = "Input value for %s: \n",
     .VARFOUNDED = "Variable founded: VAR-%s\n",
     .TFILECREATED = "Temp file created at TEMP: %s\n",
     .DIROPENERROR = "Error oppening path \n",
-    .PROCFILEQUEST = "Process file: %s? (yes/no): \n",
+    .PROCFILEQUEST = "Process file: %s? (yes/no): ",
     .PROCFILENO = "File %s not processed.\n",
     .TDIROPERROR = "Error oppening TEMP dir \n",
     .FILEDELETED = "File deleted: %s\n",
@@ -94,3 +94,39 @@ Dictionary eng = {
     .UNSUPPORTEDMODE = "Unsupported: %s mode\n"
 };
 
+typedef struct{
+    char* USAGETITTLE;
+    char* USAGEVERNOSE;
+    char* USAGELANGUAJE;
+    char* USAGEPATH;
+    char* USAGECONFIG;
+} UsageDict;
+
+UsageDict usspa = {
+    .USAGETITTLE = "Uso: deployer [opciones]\n",
+    .USAGEVERNOSE = "  -v, --verbose       Modo detallado\n",
+    .USAGELANGUAJE = "  -l, --language=LANG Seleccionar idioma (esp o eng)\n",
+    .USAGEPATH = "  -p, --path=PATH     Directorio de trabajo\n",
+    .USAGECONFIG = "  -c, --config=FILE   Archivo de configuración\n"
+};
+
+UsageDict useng = {
+    .USAGETITTLE = "Usage: deployer [options]\n",
+    .USAGEVERNOSE = "  -v, --verbose       detailed mode\n",
+    .USAGELANGUAJE = "  -l, --language=LANG select languaje (esp or eng)\n",
+    .USAGEPATH = "  -p, --path=PATH     Workdir path\n",
+    .USAGECONFIG = "  -c, --config=FILE   Config file path\n"
+};
+
+static void print_usage() {
+    printf("%s \n", usspa.USAGETITTLE   );
+    printf("%s \n", usspa.USAGECONFIG   );
+    printf("%s \n", usspa.USAGELANGUAJE   );
+    printf("%s \n", usspa.USAGEPATH   );
+    printf("%s \n", usspa.USAGEVERNOSE   );
+    printf("%s \n", useng.USAGETITTLE   );
+    printf("%s \n", useng.USAGECONFIG   );
+    printf("%s \n", useng.USAGELANGUAJE   );
+    printf("%s \n", useng.USAGEPATH   );
+    printf("%s \n", useng.USAGEVERNOSE   );
+}

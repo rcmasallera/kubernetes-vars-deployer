@@ -8,9 +8,9 @@ int main(int argc, char *argv[]) {
     unsigned int manual = FALSE;
     int config_lines = 0;
     ConfigSet *config_set = 0;
+    ConfigSet **config_sets;
     Config *config_array = 0;
     int length = 0;
-    //printf("%u", FALSE);
     // Args processing
     if (geteuid() == 0) {
         fprintf(stderr, "%s", dict->ERRORUSER);
@@ -87,6 +87,7 @@ int main(int argc, char *argv[]) {
     }
     
     if (config_file){
+        get_config_occurrences(config_file, dict);
         config_lines = get_config_lines(config_file, dict);
         config_array = malloc(config_lines * sizeof(Config));
         config_set = malloc(sizeof(ConfigSet));
@@ -95,6 +96,9 @@ int main(int argc, char *argv[]) {
     else{
         if (!manual){
             config_file=CONFIG_FILE;
+            
+            int temp = get_config_occurrences(config_file, dict);
+            printf("Se encontraron %d configuraciones \n", temp);
             config_lines = get_config_lines(config_file, dict);
             config_array = malloc(config_lines * sizeof(Config));
             config_set = malloc(sizeof(ConfigSet));

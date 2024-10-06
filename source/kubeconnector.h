@@ -1,60 +1,9 @@
 #include <curl/curl.h>
+#include "langdict.h"
 
-#ifndef LANGDICT_H
-#define LANGDICT_H
-#include <stdio.h>
-#include <stdlib.h>
-
-typedef struct {
-    char* MANUALMODE;
-    char* ERRORUSER;
-    char* DIRNOTIFY;
-    char* DIRSCANNING;
-    char* TEMPFILESCREATED;
-    char* DELTEMPQUEST;
-    char* DELTEMPNO;
-    char* DELTEMPYES;
-    char* DELTEMPERROR;
-    char* NONPRINTABLE;
-    char* YAMLPROCESSING;
-    char* FOPENERROR;
-    char* TEMPFERROR;
-    char* FILEPROC;
-    char* VARVALUE;
-    char* VARFOUNDED;
-    char* TFILECREATED;
-    char* DIROPENERROR;
-    char* PROCFILEQUEST;
-    char* PROCFILENO;
-    char* TDIROPERROR;
-    char* FILEDELETED;
-    char* DELFILEERROR;
-    char* TEMPDIRDEL;
-    char* TEMPDIRDELERROR;
-    char* UNSUPPORTEDLANG;
-    char* DIRCREATFAIL;
-    char* ALLOCATIONERROR;
-    char* UNSUPPORTEDMODE;
-} Dictionary;
-
-extern Dictionary spa;
-extern Dictionary eng;
-
-typedef struct{
-    char* USAGETITTLE;
-    char* USAGEVERNOSE;
-    char* USAGELANGUAJE;
-    char* USAGEPATH;
-    char* USAGECONFIG;
-} UsageDict;
-
-extern UsageDict usspa;
-extern UsageDict useng;
-
-void print_usage();
-
-#endif // LANGDICT_H
-
+/*
+    Future implementation, maybe i will use sockets
+*/
 
 void applyYamlFile(const char *filePath, const char *apiServerUrl, const char *token) {
     CURL *curl;

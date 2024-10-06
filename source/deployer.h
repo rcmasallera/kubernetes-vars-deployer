@@ -90,11 +90,12 @@ void remove_newlinesp(char *str) {
     *output = '\0';        
 }
 
-void process_yaml_file(const char *file_path, Dictionary *lang, ConfigSet *cfgset, unsigned int *manual) {
+void process_yaml_file(const char *file_path, Dictionary *lang, ConfigBlock *cfgblock, unsigned int *manual) {
     
     printf("%s", lang->YAMLPROCESSING);
     char tmp_file[MAX_PATH];
     get_tmp_file_name(file_path, tmp_file); 
+    ConfigVar **vars=NULL;
 
     FILE *src = fopen(file_path, "r");
     if (!src) {
@@ -114,8 +115,9 @@ void process_yaml_file(const char *file_path, Dictionary *lang, ConfigSet *cfgse
 
     int config_lines;
 
-    if (cfgset){
-       config_lines = *cfgset->lines;
+    if (cfgblock){
+       config_lines = *cfgblock->var_count;
+       vars = &cfgblock->vars;
     }
     while (fgets(line, sizeof(line), src)) {
         char *pos = NULL;
@@ -127,11 +129,11 @@ void process_yaml_file(const char *file_path, Dictionary *lang, ConfigSet *cfgse
             char new_line[1024] = {0};
             unsigned short var_assigned = FALSE;
             int compare_result;
-            if(*manual == 0 && cfgset){
-                for (int i = 0; i < *cfgset->lines; i++) {
-                    compare_result = strcmp(var_name, cfgset->array[i].key);
+            if(*manual == 0 && cfgblock){
+                for (int i = 0; i < *cfgblock->var_count; i++) {
+                    compare_result = strcmp(var_name, cfgblock->vars[i].key);
                     if (compare_result == 0){
-                        strncpy(replacement, cfgset->array[i].value, sizeof(replacement) - 1);
+                        strncpy(replacement, cfgblock->vars[i].value, sizeof(replacement) - 1);
                         remove_newlinesp(replacement);
                         var_assigned = TRUE;
                         break;
@@ -171,12 +173,13 @@ void process_yaml_file(const char *file_path, Dictionary *lang, ConfigSet *cfgse
     printf(lang->TFILECREATED, tmp_file);
 }
 
-void scan_directory(const char *dir_path, Dictionary *lang, ConfigSet *cfgset, unsigned int *manual) {
+void scan_directory(const char *dir_path, Dictionary *lang, ConfigBlock *cfgblocks, unsigned int *manual, unsigned int *blocks) {
     DIR *dir = opendir(dir_path);
     if (!dir) {
         perror(lang->DIROPENERROR);
         return;
     }
+    ConfigBlock *current_config = cfgblocks;
 
     struct dirent *entry;
     char path[MAX_PATH];
@@ -194,7 +197,7 @@ void scan_directory(const char *dir_path, Dictionary *lang, ConfigSet *cfgset, u
         }
 
         if (S_ISDIR(st.st_mode)) {
-            scan_directory(path, lang, cfgset, &*manual); 
+            scan_directory(path, lang, cfgblocks, manual, blocks); 
         }
         else if (strstr(entry->d_name, ".yaml")) {
             int length = 0;
@@ -203,14 +206,24 @@ void scan_directory(const char *dir_path, Dictionary *lang, ConfigSet *cfgset, u
             fgets(confirm, sizeof(confirm), stdin);
             remove_newlinesp(confirm);
             length = strlen(confirm);
-            while (length <= 1){
+            while (length <= 1) {
               fgets(confirm, sizeof(confirm), stdin);
               remove_newlinesp(confirm);
               length = strlen(confirm);
-            };
-            int strcmp_response = strcmp(confirm, "yes");
-            if (strcmp_response == 0) {
-                process_yaml_file(path, lang, cfgset, manual); 
+            }
+            if (strcmp(confirm, "yes") == 0) {
+                for (int x = 0; x < *blocks; x++) {
+                    printf("SEARCHINGLOCKS %d", x);
+                    printf("%s", current_config->file_name);
+                    if (strcmp(current_config->file_name, path) == 0) {
+                        current_config = cfgblocks;
+                        process_yaml_file(path, lang, current_config, manual);
+                    }
+                    else{
+                        current_config ++;
+                    }
+                }
+                 
             } else {
                 delete_tmp_file(path, lang);  
                 printf(lang->PROCFILENO, path);
@@ -220,6 +233,7 @@ void scan_directory(const char *dir_path, Dictionary *lang, ConfigSet *cfgset, u
 
     closedir(dir);
 }
+
 
 void delete_temp_files(Dictionary *lang) {
     DIR *dir = opendir(TMP_DIR);

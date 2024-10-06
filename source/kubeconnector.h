@@ -1,6 +1,9 @@
 #include <curl/curl.h>
 #include "langdict.h"
 
+/*
+    Future implementation, maybe i will use sockets
+*/
 
 void applyYamlFile(const char *filePath, const char *apiServerUrl, const char *token) {
     CURL *curl;

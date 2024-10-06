@@ -1,15 +1,17 @@
 #include "deployer.h"
 
 int main(int argc, char *argv[]) {
+    /*
+        
+    */
+    ConfigBlock *config_blocks = NULL;
+    int block_count = 0;
     Dictionary *dict = &spa;
     char *path = ".";
     char *config_file = NULL;
     int verbose = 0;
     unsigned int manual = FALSE;
     int config_lines = 0;
-    ConfigSet *config_set = 0;
-    ConfigSet **config_sets;
-    Config *config_array = 0;
     int length = 0;
     // Args processing
     if (geteuid() == 0) {
@@ -85,24 +87,16 @@ int main(int argc, char *argv[]) {
             exit(EXIT_FAILURE);
         }
     }
-    
+
     if (config_file){
-        get_config_occurrences(config_file, dict);
-        config_lines = get_config_lines(config_file, dict);
-        config_array = malloc(config_lines * sizeof(Config));
-        config_set = malloc(sizeof(ConfigSet));
-        read_conf_file(config_file, dict, &config_lines, config_set, config_array);
+        read_config(config_file, &config_blocks, &block_count);
+        for (int i = 0; i < block_count; i++) {
+        display_config_block(&config_blocks[i]);
+    }
     }
     else{
         if (!manual){
-            config_file=CONFIG_FILE;
-            
-            int temp = get_config_occurrences(config_file, dict);
-            printf("Se encontraron %d configuraciones \n", temp);
-            config_lines = get_config_lines(config_file, dict);
-            config_array = malloc(config_lines * sizeof(Config));
-            config_set = malloc(sizeof(ConfigSet));
-            read_conf_file(config_file, dict, &config_lines, config_set, config_array);
+            read_config(CONFIG_FILE, &config_blocks, &block_count);
         }
         else{
             fprintf(stderr, "%s", dict->MANUALMODE);
@@ -118,7 +112,12 @@ int main(int argc, char *argv[]) {
         printf("%s", dict->DIRSCANNING);
     }
 
-    scan_directory(path, dict, config_set, &manual);
+    for (int i = 0; i < block_count; i++) {
+        display_config_block(&config_blocks[i]);
+    }
+
+
+    scan_directory(path, dict, config_blocks, &manual, &block_count);
 
     if (verbose) {
         printf("%s", dict->TEMPFILESCREATED);
@@ -141,6 +140,6 @@ int main(int argc, char *argv[]) {
         printf("%s", dict->DELTEMPNO);
     }
 
-    free(config_array);
+    free_config_blocks(config_blocks, block_count);
     return 0;
 }

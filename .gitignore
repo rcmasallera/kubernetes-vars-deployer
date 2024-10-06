@@ -58,3 +58,8 @@ tmp.*
 TEMP
 readconfig
 deployer
+.tests/*
+tests/*
+TEST/*
+TEST
+tests

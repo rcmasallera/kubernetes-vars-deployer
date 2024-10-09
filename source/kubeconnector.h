@@ -5,7 +5,7 @@
     Future implementation, maybe i will use sockets
 */
 
-void applyYamlFile(const char *filePath, const char *apiServerUrl, const char *token) {
+extern void applyYamlFile(const char *filePath, const char *apiServerUrl, const char *token) {
     CURL *curl;
     CURLcode res;
 
@@ -46,7 +46,7 @@ void applyYamlFile(const char *filePath, const char *apiServerUrl, const char *t
     curl_global_cleanup();
 }
 
-int execute_deploy() {
+static int execute_deploy() {
     //Preview
     const char *apiServerUrl = "https://<KUBERNETES_API_SERVER>/apis/networking.k8s.io/v1/namespaces/default/ingresses";
     const char *token = "<YOUR_TOKEN>";

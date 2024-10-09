@@ -11,6 +11,7 @@ int main(int argc, char *argv[]) {
     char *config_file = NULL;
     int verbose = 0;
     unsigned int manual = FALSE;
+    unsigned int autodeploy = FALSE;
     int config_lines = 0;
     int length = 0;
     // Args processing
@@ -63,6 +64,9 @@ int main(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);
             }
         } 
+        else if (strncmp(argv[i], "-d", 2) == 0 || strncmp(argv[i], "--deploy", 8) == 0) {
+            autodeploy = TRUE;
+        } 
         else if (strncmp(argv[i], "-m", 2) == 0 || strncmp(argv[i], "--manual", 8) == 0) {
             char *manual_mode = strchr(argv[i], '=');
             if (!manual_mode && i + 1 < argc) {
@@ -89,14 +93,14 @@ int main(int argc, char *argv[]) {
     }
 
     if (config_file){
-        read_config(config_file, &config_blocks, &block_count);
+        read_config(config_file, &config_blocks, &block_count, dict);
         for (int i = 0; i < block_count; i++) {
         display_config_block(&config_blocks[i]);
     }
     }
     else{
         if (!manual){
-            read_config(CONFIG_FILE, &config_blocks, &block_count);
+            read_config(CONFIG_FILE, &config_blocks, &block_count, dict);
         }
         else{
             fprintf(stderr, "%s", dict->MANUALMODE);
@@ -109,13 +113,12 @@ int main(int argc, char *argv[]) {
     }
 
     if (verbose) {
+        for (int i = 0; i < block_count; i++) {
+            display_config_block(&config_blocks[i]);
+        }
         printf("%s", dict->DIRSCANNING);
     }
-
-    for (int i = 0; i < block_count; i++) {
-        display_config_block(&config_blocks[i]);
-    }
-
+    
 
     scan_directory(path, dict, config_blocks, &manual, &block_count);
 
@@ -128,13 +131,7 @@ int main(int argc, char *argv[]) {
     fgets(confirm, sizeof(confirm), stdin);
     confirm[strcspn(confirm, "\n")] = '\0';
     remove_newlinesp(confirm);
-    length = strlen(confirm);
-    while (length <= 1){
-      fgets(confirm, sizeof(confirm), stdin);
-      length = strlen(confirm);
-      remove_newlinesp(confirm);
-    };
-    if (strcmp(confirm, "yes") == 0) {
+    if (is_yes(confirm) == 1) {
         delete_temp_files(dict);
     } else {
         printf("%s", dict->DELTEMPNO);

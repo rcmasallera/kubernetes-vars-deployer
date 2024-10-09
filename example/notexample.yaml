@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: %VAR-NONASIGNED%
+  labels:
+    app: %VAR-APP%
+  name: %VAR-NAME%
+spec:
+  ports:
+  - name: "%VAR-PORT-NAME%"
+    port: %VAR-PORT%
+    targetPort: %VAR-TARGET-PORT%
+  selector:
+    app: %VAR-APP-SELECTOR%

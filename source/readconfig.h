@@ -30,10 +30,10 @@ typedef struct {
     int *var_count;
 } ConfigBlock;
 
-void read_config(const char *filename, ConfigBlock **config_blocks, int *block_count) {
+void read_config(const char *filename, ConfigBlock **config_blocks, int *block_count, Dictionary *lang) {
     FILE *file = fopen(filename, "r");
     if (!file) {
-        perror("Error opening file");
+        perror(lang->FOPENERROR);
         return;
     }
 

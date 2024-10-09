@@ -63,3 +63,6 @@ tests/*
 TEST/*
 TEST
 tests
+# ide files
+.vscode
+*vscode*

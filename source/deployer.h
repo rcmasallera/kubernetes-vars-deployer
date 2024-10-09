@@ -90,35 +90,43 @@ void remove_newlinesp(char *str) {
     *output = '\0';        
 }
 
-void process_yaml_file(const char *file_path, Dictionary *lang, ConfigBlock *cfgblock, unsigned int *manual) {
-    
-    printf("%s", lang->YAMLPROCESSING);
-    char tmp_file[MAX_PATH];
-    get_tmp_file_name(file_path, tmp_file); 
-    ConfigVar **vars=NULL;
-
-    FILE *src = fopen(file_path, "r");
+FILE * open_file(const char *file_path, char *error, char *mode, Dictionary *lang){
+    FILE *src = fopen(file_path, mode);
     if (!src) {
         perror(lang->FOPENERROR);
-        return;
+        return NULL;
     }
+    return src;
+}
 
-    FILE *tmp = fopen(tmp_file, "w");
-    if (!tmp) {
-        perror(lang->TEMPFERROR);
-        fclose(src);
-        return;
-    }
-    
-    printf("%s %s\n", lang->FILEPROC, file_path);
-    char line[1024];
-
+void process_yaml_file(const char *file_path, Dictionary *lang, ConfigBlock *cfgblock, unsigned int *manual) {
     int config_lines;
+    ConfigVar **vars=NULL;
 
     if (cfgblock){
        config_lines = *cfgblock->var_count;
        vars = &cfgblock->vars;
     }
+    else{
+        if(*manual == FALSE){
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    printf("%s", lang->YAMLPROCESSING);
+    char tmp_file[MAX_PATH];
+    get_tmp_file_name(file_path, tmp_file); 
+    
+    FILE *src = open_file(file_path, lang->FOPENERROR, "r", lang);
+    FILE *tmp = open_file(tmp_file, lang->FOPENERROR, "w", lang);
+    
+    if((!src)||(!tmp)){
+        exit(EXIT_FAILURE);
+    }
+    
+    printf("%s %s\n", lang->FILEPROC, file_path);
+    char line[1024];
+
     while (fgets(line, sizeof(line), src)) {
         char *pos = NULL;
         while ((pos = strstr(line, "%VAR-")) != NULL) { 
@@ -148,12 +156,7 @@ void process_yaml_file(const char *file_path, Dictionary *lang, ConfigBlock *cfg
                 printf("%s%s\n", lang->VARVALUE, var_name);
                 printf("%s%s\n", lang->VARFOUNDED, var_name);
                 fgets(replacement, sizeof(replacement), stdin);
-                int length = strlen(replacement);
-                while (length <= 1){
-                    fgets(replacement, sizeof(replacement), stdin);
-                    replacement[strcspn(replacement, "\n")] = '\0';
-                    length = strlen(replacement);
-                }
+                remove_newlinesp(replacement);
             };
             remove_newlinesp(replacement);
             strncpy(new_line, line, pos - line);  
@@ -173,7 +176,15 @@ void process_yaml_file(const char *file_path, Dictionary *lang, ConfigBlock *cfg
     printf(lang->TFILECREATED, tmp_file);
 }
 
-void scan_directory(const char *dir_path, Dictionary *lang, ConfigBlock *cfgblocks, unsigned int *manual, unsigned int *blocks) {
+static unsigned int is_yes(char str[]) {
+    if ((strcasecmp(str, "yes") == 0) || (strcasecmp(str, "y") == 0)) {
+
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static void scan_directory(const char *dir_path, Dictionary *lang, ConfigBlock *cfgblocks, unsigned int *manual, unsigned int *blocks) {
     DIR *dir = opendir(dir_path);
     if (!dir) {
         perror(lang->DIROPENERROR);
@@ -200,21 +211,12 @@ void scan_directory(const char *dir_path, Dictionary *lang, ConfigBlock *cfgbloc
             scan_directory(path, lang, cfgblocks, manual, blocks); 
         }
         else if (strstr(entry->d_name, ".yaml")) {
-            int length = 0;
             char confirm[4];
             printf(lang->PROCFILEQUEST, path);
             fgets(confirm, sizeof(confirm), stdin);
             remove_newlinesp(confirm);
-            length = strlen(confirm);
-            while (length <= 1) {
-              fgets(confirm, sizeof(confirm), stdin);
-              remove_newlinesp(confirm);
-              length = strlen(confirm);
-            }
-            if (strcmp(confirm, "yes") == 0) {
+            if (is_yes(confirm) == 1) {
                 for (int x = 0; x < *blocks; x++) {
-                    printf("SEARCHINGLOCKS %d", x);
-                    printf("%s", current_config->file_name);
                     if (strcmp(current_config->file_name, path) == 0) {
                         current_config = cfgblocks;
                         process_yaml_file(path, lang, current_config, manual);
@@ -249,7 +251,6 @@ void delete_temp_files(Dictionary *lang) {
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
             continue;
         }
-
         snprintf(file_path, MAX_PATH, "%s/%s", TMP_DIR, entry->d_name);
         if (remove(file_path) == 0) {
             printf(lang->FILEDELETED, file_path);

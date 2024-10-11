@@ -31,6 +31,7 @@ typedef struct {
     char* DIRCREATFAIL;
     char* ALLOCATIONERROR;
     char* UNSUPPORTEDMODE;
+    char* FILENOTINCFG;
 } Dictionary;
 
 Dictionary spa = {
@@ -62,7 +63,8 @@ Dictionary spa = {
     .UNSUPPORTEDLANG =  "Idioma no soportado: %s\n",
     .DIRCREATFAIL = "Error al crear el directorio %s\n",
     .ALLOCATIONERROR = "Error en la reserva de memoria\n",
-    .UNSUPPORTEDMODE = "Modo: %s no soportado\n"
+    .UNSUPPORTEDMODE = "Modo: %s no soportado\n",
+    .FILENOTINCFG = "No se encontró %s en la configuración\n"
 };
 
 Dictionary eng = {
@@ -94,7 +96,8 @@ Dictionary eng = {
     .UNSUPPORTEDLANG =  "Unsupported lang: %s\n",
     .DIRCREATFAIL = "Error creating dir %s\n",
     .ALLOCATIONERROR = "Error allocating memory\n",
-    .UNSUPPORTEDMODE = "Unsupported: %s mode\n"
+    .UNSUPPORTEDMODE = "Unsupported: %s mode\n",
+    .FILENOTINCFG = "File: %s not founded on config file, edit manually?\n"
 };
 
 typedef struct{

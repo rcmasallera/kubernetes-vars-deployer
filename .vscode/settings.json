@@ -6,6 +6,8 @@
         "readconfig.h": "c",
         "types.h": "c",
         "deployer_v2.h": "c",
-        "dirent.h": "c"
+        "dirent.h": "c",
+        "fprocessor_w.h": "c",
+        "stdio.h": "c"
     }
 }

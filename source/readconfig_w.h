@@ -1,9 +1,10 @@
 #ifndef READ_CONFIG_H
 #define READ_CONFIG_H
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <regex.h>
-#include "kubeconnector.h"
+#include <Windows.h>
 
 #if !defined(TRUE)
 #define TRUE 1U
@@ -14,7 +15,6 @@
 #endif // FALSE
 
 #define MAX_LINE 1024
-
 
 typedef struct {
     char *key;
@@ -31,6 +31,7 @@ typedef struct {
     int *var_count;
 } ConfigBlock;
 
+// Función para leer el archivo de configuración
 void read_config(const char *filename, ConfigBlock **config_blocks, int *block_count, Dictionary *lang) {
     FILE *file = fopen(filename, "r");
     if (!file) {
@@ -40,7 +41,7 @@ void read_config(const char *filename, ConfigBlock **config_blocks, int *block_c
 
     char *line = NULL;
     size_t len = 0;
-    ConfigBlock current_block = {NULL, NULL, 0, NULL, NULL, NULL};
+    ConfigBlock current_block = {NULL, 0, NULL, NULL, NULL};
     int in_vars_section = 0;
 
     *block_count = 0;
@@ -108,6 +109,7 @@ void read_config(const char *filename, ConfigBlock **config_blocks, int *block_c
     fclose(file);
 }
 
+// Función para mostrar el bloque de configuración
 void display_config_block(ConfigBlock *block) {
     printf("[%s]\n", block->file_name);
     printf("CONFIG:\n");
@@ -120,6 +122,7 @@ void display_config_block(ConfigBlock *block) {
     printf("\n");
 }
 
+// Función para liberar los bloques de configuración
 void free_config_blocks(ConfigBlock *config_blocks, int block_count) {
     for (int i = 0; i < block_count; i++) {
         free(config_blocks[i].file_name);
@@ -134,4 +137,4 @@ void free_config_blocks(ConfigBlock *config_blocks, int block_count) {
     free(config_blocks);
 }
 
-#endif
+#endif // READ_CONFIG_H

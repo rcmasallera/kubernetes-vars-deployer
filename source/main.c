@@ -9,6 +9,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+//#include "deployer.h"
 #endif
 
 int main(int argc, char *argv[]) {
@@ -147,6 +148,13 @@ int main(int argc, char *argv[]) {
         delete_temp_files(dict);
     } else {
         printf("%s", dict->DELTEMPNO);
+    }
+
+    printf("%s", dict->DEPLOYQUEST);
+    fgets(confirm, sizeof(confirm), stdin);
+    remove_newlinesp(confirm);
+    if (is_yes(confirm) == TRUE) {
+        executeDeploy(config_blocks, &block_count, dict);
     }
 
     free_config_blocks(config_blocks, block_count);

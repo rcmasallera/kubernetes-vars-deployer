@@ -32,6 +32,10 @@ typedef struct {
     char* ALLOCATIONERROR;
     char* UNSUPPORTEDMODE;
     char* FILENOTINCFG;
+    char* DEPLOYQUEST;
+    char* NOCOMMAND;
+    char* SYNTAX;
+    char* CFGWAITARG;
 } Dictionary;
 
 Dictionary spa = {
@@ -64,7 +68,11 @@ Dictionary spa = {
     .DIRCREATFAIL = "Error al crear el directorio %s\n",
     .ALLOCATIONERROR = "Error en la reserva de memoria\n",
     .UNSUPPORTEDMODE = "Modo: %s no soportado\n",
-    .FILENOTINCFG = "No se encontró %s en la configuración\n"
+    .FILENOTINCFG = "No se encontró %s en la configuración\n",
+    .DEPLOYQUEST= "Desplegar los archivos resultantes según su comando? (yes/no): ",
+    .NOCOMMAND = "No se definió comando para %s, definir uno? (yes/no): ",
+    .SYNTAX = "La sintaxis del comando, debe incuir %s en donde deba ir el archivo \nEjemplo: para el achivo /home/user/TEMP/tmp.tu_archivo.yaml \nla sintaxis para aplicar con kubectl es: kubectl apply -f %s \nla sintaxis para docker compose es: docker compoes -f %s up -d\ncomando: ",
+    .CFGWAITARG = "Esperando %d segundos después del despliegue de %s, razón: %s\n"
 };
 
 Dictionary eng = {
@@ -97,7 +105,11 @@ Dictionary eng = {
     .DIRCREATFAIL = "Error creating dir %s\n",
     .ALLOCATIONERROR = "Error allocating memory\n",
     .UNSUPPORTEDMODE = "Unsupported: %s mode\n",
-    .FILENOTINCFG = "File: %s not founded on config file, edit manually?\n"
+    .FILENOTINCFG = "File: %s not founded on config file, edit manually?\n",
+    .DEPLOYQUEST= "Do you wish to run configured comand with processed files? (yes/no): ",
+    .NOCOMMAND="No command defined for %s, define now? (yes/no): ",
+    .SYNTAX = "The syntax of the command must include %s where the file should go \nExample: for the file /home/user/TEMP/tmp.your_file.yaml \nthe syntax for kubectl is: kubectl apply -f %s \nthe syntax for docker compose is: docker compoes -f %s up -d\ncommand: ",
+    .CFGWAITARG = "Waiting %d secconds after %s deploy, reason: %s\n"
 };
 
 typedef struct{

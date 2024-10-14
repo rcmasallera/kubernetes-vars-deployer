@@ -63,6 +63,8 @@ tests/*
 TEST/*
 TEST
 tests
+testfunc*
+deployer
 # ide files
 .vscode
 *vscode*

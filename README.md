@@ -16,6 +16,9 @@ A light way to deploy various environments on kubernetes using kubectl, vars and
 
 # Recommendations:
     If it is ok that you can, do NOT use this to save passwords on config files.
-    For general proposes, i dont want root creating files, so this code check 
-    the uid and rejects root. You can bypass this by editing the code at main.
-    maybe a future add as a parameter, but idts.
+   
+
+> [!TIP]
+>  For general proposes, i dont want root creating files, so this code check 
+>  the uid and rejects root. You can bypass this by editing the code at main.
+>  maybe a future add as a parameter, but idts.

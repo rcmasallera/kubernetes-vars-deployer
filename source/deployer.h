@@ -1,24 +1,18 @@
-#ifndef F_PROCESSOR_H
-
-#define F_PROCESSOR_H
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #define MAX_OPTION_LEN 10
 #define MAX_PATH_LEN 256
-#include "fprocessor.h"
+
+extern struct ConfigBlock;
 
 int silent = 0;
 int verbose = 0;
 /*
 TODO
 */
-int executeDeploy(ConfigBlock *config, char *command) {
-
-    char path[MAX_PATH_LEN];
-    snprintf(path, sizeof(path), "./*/-deploy.yaml");
+int executeDeploy(ConfigBlock *config, int configs) {
 
     char path[MAX_PATH_LEN];
     snprintf(path, sizeof(path), "./*/-deploy.yaml");
@@ -42,4 +36,8 @@ int executeDeploy(ConfigBlock *config, char *command) {
     snprintf(command, sizeof(command), "ls %s 2>/dev/null", path);
     fp = popen(command, "r");
 
+}
+
+int deploy(ConfigBlock *config, int configs){
+    
 }

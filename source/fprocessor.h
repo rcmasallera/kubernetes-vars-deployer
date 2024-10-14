@@ -74,18 +74,13 @@ static void print_non_printable_ascii(const char *str, Dictionary *lang) {
 
 void remove_newlinesp(char *str) {
     char *p = str;        
-    char *output = str;   
 
     while (*p) {          
-        if (*p != 10) {   
-            *output++ = *p;
-        }
-        else{
+        if (*p == 10) {   
             *p = '\0';
         }
         p++;               
-    }
-    *output = '\0';        
+    }       
 }
 
 static FILE * open_file(const char *file_path, char *error, char *mode, Dictionary *lang){
@@ -256,15 +251,15 @@ void scan_directory(const char *dir_path, Dictionary *lang, ConfigBlock *cfgbloc
                     if(!current_config){
                         printf("NULL_POINTER_EXCEPTION %s", filename);
                     }
-                    printf("%d\n", x);
                     if (strcmp(current_config->file_name, filename) == 0) {
                         current_config = cfgblocks;
                         process_yaml_file(path, lang, current_config, manual);
+                        break;
                     }
                     else{
                         current_config ++;
                     }
-                    if(x == (*blocks - 1)){
+                    if(x == (*blocks - 1) && (confirmation == FALSE)){
                         printf(lang->FILENOTINCFG, filename);
                         fgets(confirm, sizeof(confirm), stdin);
                         remove_newlinesp(confirm);
@@ -273,7 +268,9 @@ void scan_directory(const char *dir_path, Dictionary *lang, ConfigBlock *cfgbloc
                         if (confirmation == TRUE){
                             process_yaml_file(path, lang, current_config, &confirmation);
                         }
-                        else{continue;}
+                        else{
+                            continue;
+                        }
                     }
                 }
                 current_config = cfgblocks;
@@ -317,4 +314,44 @@ void delete_temp_files(Dictionary *lang) {
     } else {
         perror(lang->TEMPDIRDELERROR);
     }
+}
+
+
+int executeDeploy(ConfigBlock *config, int *configs, Dictionary *lang) {
+
+    char command[MAX_LINE] = {0};
+    unsigned int command_defined = FALSE;
+
+    ConfigBlock *current_config = config;
+    for(int i = 0; i < *configs; i++){
+        if (*(config->config_command) == 35){
+            printf(lang->NOCOMMAND, config->file_name);
+            char confirm[4];
+            fgets(confirm, sizeof(confirm), stdin);
+            remove_newlinesp(confirm);
+            if (is_yes(confirm) == TRUE) {
+                printf("%s", lang->SYNTAX);
+                fgets(command, sizeof(command), stdin);
+                while(strlen(command) < 3){
+                    printf("%s", lang->SYNTAX);
+                    memset(command, 0, sizeof(command));
+                    fgets(command, sizeof(command), stdin);
+                }
+                printf(command, config->tmp_filename, "\n");
+            }
+        }
+        else{
+            strncpy(command, current_config->config_command, sizeof(command) - 1);
+        }
+        system(command);
+        printf(lang->CFGWAITARG, (current_config->config_waittime), (current_config->file_name), (current_config->config_waitarg));
+        sleep(current_config->config_waittime);
+        memset(command, 0, sizeof(command));
+        current_config ++;
+    }
+
+}
+
+int deploy(ConfigBlock *config, int configs){
+    return 0;
 }
